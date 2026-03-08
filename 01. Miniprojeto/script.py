@@ -2,7 +2,16 @@ import subprocess
 import csv
 import time
 
-EID = "i5491"
+def get_active_eid():
+    out = subprocess.check_output("himage -l", shell=True).decode().strip()
+    first_line = out.split("\n")[0]
+    eid = first_line.split()[0]
+    return eid
+
+EID = get_active_eid()
+print("EID detectado:", EID)
+
+
 RESULT_FILE = "resultados.csv"
 
 TCP_VARIANTS = ["reno", "cubic"]
