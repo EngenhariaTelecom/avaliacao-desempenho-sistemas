@@ -1,3 +1,7 @@
+# Este script além de aplicar as configurações solicitadas no projeto, aletramos o tamanho da fila do rotedor para forçar retransmissões.
+
+# Alterado BER, Taxa UDP para forçar retransmissão
+
 import subprocess
 import csv
 import time
@@ -20,13 +24,10 @@ def run_output(cmd):
     return subprocess.check_output(cmd, shell=True).decode().strip()
 
 def wait_iperf_server(pc):
-    for _ in range(10):
-        try:
-            out = run_output(f"himage {pc} netstat -tln | grep 5001 || true")
-            if "5001" in out:
-                return
-        except:
-            pass
+    for _ in range(20):   # tenta até 20 vezes
+        out = run_output(f"himage {pc} ss -ltn | grep ':5001' || true")
+        if out.strip() != "":
+            return
         time.sleep(1)
 
 
@@ -34,11 +35,12 @@ def wait_iperf_server(pc):
 EID = get_active_eid()
 print("EID detectado:", EID)
 
-RESULT_FILE = "result.csv"
+RESULT_FILE = "result2.csv"
 
 TCP_VARIANTS = ["reno", "cubic"]
-BERS = [1000000, 100000]   # 1e-6 e 1e-5
-UDP_RATES = [800, 900]     # Mbps
+#BERS = [1000000, 100000]   # 1e-6 e 1e-5
+BERS = [10000, 1000]   # 1e-4 e 1e-3
+UDP_RATES = [900, 1000]     # Mbps
 REPS = 8
 
 # PCs do IMUNES
@@ -74,6 +76,10 @@ with open(RESULT_FILE, "w", newline="") as f:
             # Configura BER entre roteadores (host)
             run(f"sudo vlink -BER {ber} -eid {EID} router1:router2")
 
+            # REDUZ FILA DO ROTEADOR 
+            run(f"himage router1@{EID} ip link set dev eth2 txqueuelen 10")
+            run(f"himage router2@{EID} ip link set dev eth0 txqueuelen 10")
+
             for udp in UDP_RATES:
 
                 print(f"\nUDP {udp} Mbps")
@@ -84,7 +90,8 @@ with open(RESULT_FILE, "w", newline="") as f:
 
                 run(f"himage {PC3} pkill iperf || true")
                 # cliente UDP rodando em background na VM
-                run(f"himage {PC3} bash -c 'iperf -c {UDP_SERVER_IP} -u -b {udp}M -t 40 &'")
+                run(f"himage {PC3} bash -c 'iperf -c {UDP_SERVER_IP} -u -b {udp}M &'")
+                time.sleep(2)
 
                 for rep in range(1, REPS + 1):
 
@@ -92,6 +99,7 @@ with open(RESULT_FILE, "w", newline="") as f:
 
                     # Limpa e inicia servidor TCP
                     run(f"himage {PC2} pkill iperf || true")
+                    time.sleep(1)
                     run(f"himage {PC2} iperf -s -D")
                     wait_iperf_server(PC2)
 
