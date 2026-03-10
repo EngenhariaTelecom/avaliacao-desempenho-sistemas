@@ -1,6 +1,13 @@
 # Este script além de aplicar as configurações solicitadas no projeto, aletramos o tamanho da fila do rotedor para forçar retransmissões.
 
-# Alterado BER, Taxa UDP para forçar retransmissão
+# Alterado BER, Taxa UDP e diminuição da fila para 10 no roteador para forçar retransmissão, mas mesmo assim não teve retransmissão.
+# Depois, voltei os parametros de BER, UDP para o padrão, mantive a fila limita a 10 e adicionei uma perda forçada de pacote no roteador
+# Após isso de fato ocorrou retransmissão.
+
+#Foram realizado 2 variações do experimentos, variando apenas o loss imposto nos roteadores. 
+# Sendo o primeiro com loss de 0.1% e o segundo com o loss de 2%, pois sem loss não há retransmissão 
+
+
 
 import subprocess
 import csv
@@ -35,12 +42,13 @@ def wait_iperf_server(pc):
 EID = get_active_eid()
 print("EID detectado:", EID)
 
-RESULT_FILE = "result2.csv"
+RESULT_FILE = "result_experimento.csv"
 
 TCP_VARIANTS = ["reno", "cubic"]
-#BERS = [1000000, 100000]   # 1e-6 e 1e-5
-BERS = [10000, 1000]   # 1e-4 e 1e-3
-UDP_RATES = [900, 1000]     # Mbps
+BERS = [1000000, 100000]   # 1e-6 e 1e-5
+# teste - BERS = [10000, 1000]   # 1e-4 e 1e-3
+# teste - UDP_RATES = [900, 1000]     # Mbps
+UDP_RATES = [800, 900]
 REPS = 8
 
 # PCs do IMUNES
@@ -79,6 +87,18 @@ with open(RESULT_FILE, "w", newline="") as f:
             # REDUZ FILA DO ROTEADOR 
             run(f"himage router1@{EID} ip link set dev eth2 txqueuelen 10")
             run(f"himage router2@{EID} ip link set dev eth0 txqueuelen 10")
+
+            # remove regra anterior (se existir)
+            run(f"himage router1@{EID} tc qdisc del dev eth2 root || true")
+            run(f"himage router2@{EID} tc qdisc del dev eth0 root || true")
+
+            # adiciona perda de 2% e salva no arquivo chamado result_experimento_2loss
+            #run(f"himage router1@{EID} tc qdisc add dev eth2 root netem loss 2%")
+            #run(f"himage router2@{EID} tc qdisc add dev eth0 root netem loss 2%")
+
+            # adiciona perda de 0.1% e salva no arquivo chamado result_experimento_01loss
+            run(f"himage router1@{EID} tc qdisc add dev eth2 root netem loss 0.1%")
+            run(f"himage router2@{EID} tc qdisc add dev eth0 root netem loss 0.1%")
 
             for udp in UDP_RATES:
 
