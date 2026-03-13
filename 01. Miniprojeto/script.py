@@ -63,7 +63,7 @@ EID = get_active_eid()
 print("EID detectado:", EID)
 
 # nome do arquivo CSV onde os resultados serão armazenados
-RESULT_FILE = "./result_experimento_loss02.csv"
+RESULT_FILE = "./result_experimento_loss2.csv"
 
 # fatores com seus respectivos níveis
 TCP_VARIANTS = ["reno", "cubic"]
@@ -129,8 +129,8 @@ with open(RESULT_FILE, "w", newline="") as f:
             run(f"himage router2@{EID} tc qdisc del dev eth0 root || true")
 
             # adiciona perda artificial de 0.2% no router1 e router2
-            run(f"himage router1@{EID} tc qdisc add dev eth2 root netem loss 0.2%")
-            run(f"himage router2@{EID} tc qdisc add dev eth0 root netem loss 0.2%")
+            run(f"himage router1@{EID} tc qdisc add dev eth2 root netem loss 2%")
+            run(f"himage router2@{EID} tc qdisc add dev eth0 root netem loss 2%")
 
 
             # percorre cada taxa de tráfego UDP
