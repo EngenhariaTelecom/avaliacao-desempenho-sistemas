@@ -113,7 +113,7 @@ IP_SERVIDOR = "10.0.1.20" # IP real do PC2 configurado no IMUNES
 NOME_ARQUIVO = "./02. Miniprojeto - Cadeia de Markov/resultado_experimento.csv"
 
 # Configurações do roteiro 
-PASSOS = 50
+PASSOS = 100
 DURACAO_EPOCA = 5
 TAMANHO_PACOTE = 1400
 
