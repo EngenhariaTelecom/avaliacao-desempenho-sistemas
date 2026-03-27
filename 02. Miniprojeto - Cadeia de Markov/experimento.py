@@ -110,10 +110,10 @@ EID = pegar_id_ativo()
 SERVIDOR = f"pc2@{EID}"
 CLIENTE  = f"pc1@{EID}"
 IP_SERVIDOR = "10.0.1.20" # IP real do PC2 configurado no IMUNES
-NOME_ARQUIVO = "./02. Miniprojeto - Cadeia de Markov/resultado_experimento.csv"
+NOME_ARQUIVO = "./02. Miniprojeto - Cadeia de Markov/resultado_experimento_200rep2.csv"
 
 # Configurações do roteiro 
-PASSOS = 100
+PASSOS = 200
 DURACAO_EPOCA = 5
 TAMANHO_PACOTE = 1400
 
