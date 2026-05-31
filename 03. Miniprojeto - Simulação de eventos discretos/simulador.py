@@ -1,7 +1,7 @@
 """
 =============================================================
-  DES — Simulação de Domínio de Colisão (CSMA/CD)
-  Disciplina: Redes de Computadores / Simulação
+  DES — Simulação de Domínio de Colisão 
+  Disciplina: Avaliação de Desempenho de Sistemas
 =============================================================
 
 CONCEITO GERAL:
