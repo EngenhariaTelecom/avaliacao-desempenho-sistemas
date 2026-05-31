@@ -100,7 +100,31 @@ def transmission_time(size_bytes):
 
 
 # ─────────────────────────────────────────────────────────────
-# BLOCO 3: EVENTOS CONCRETOS
+# BLOCO 3: METODO CONGRUENTE LINEAR
+# ─────────────────────────────────────────────────────────────
+
+class LCM:
+    """
+    Gerador congruente linear
+    z(n+1) = (a * z(n) + c) mod m
+    """
+    def __init__(self, seed=42):
+        self.a = 1103515245
+        self.c = 12345
+        self.m = 2147483648   # 2^31
+        self.z = seed
+
+    def next_int(self):
+        self.z = (self.a * self.z + self.c) % self.m
+        return self.z
+
+    def uniform(self):
+        """Número em [0, 1) — base para todos os outros métodos"""
+        return self.next_int() / self.m
+
+
+# ─────────────────────────────────────────────────────────────
+# BLOCO 4: EVENTOS CONCRETOS
 # ─────────────────────────────────────────────────────────────
 
 class ArrivalEvent(Event):
@@ -256,7 +280,9 @@ class BackoffEvent(Event):
         station['backoffs'] += 1
 
         # Tempo de espera aleatório
-        wait = random.randint(0, BACKOFF_SLOTS) * SLOT_TIME
+        # wait = random.randint(0, BACKOFF_SLOTS) * SLOT_TIME - substituido pelo metodo congruente
+        y = lcm.uniform()
+        wait = int(y * (BACKOFF_SLOTS + 1)) * SLOT_TIME
 
         # Após o backoff, tenta transmitir novamente
         sim.schedule(StartTransmissionEvent(
@@ -266,7 +292,7 @@ class BackoffEvent(Event):
 
 
 # ─────────────────────────────────────────────────────────────
-# BLOCO 4: O SIMULADOR PRINCIPAL
+# BLOCO 5: O SIMULADOR PRINCIPAL
 # ─────────────────────────────────────────────────────────────
 
 class CollisionSimulator(Simulator):
@@ -322,8 +348,12 @@ class CollisionSimulator(Simulator):
         """
         # Primeira chegada de A: amostra da distribuição exponencial
         # (interburst de Poisson = exponencial com média 1/λ)
-        first_a = random.expovariate(self.lambda_a)
-        pkt_a   = random.randint(20, 1000)           # tamanho uniforme [20,1000] bytes
+        # first_a = random.expovariate(self.lambda_a) - substituido pelo metodo congruente
+        y = lcm.uniform()
+        first_a = -math.log(y) / self.lambda_a
+        # pkt_a   = random.randint(20, 1000)   # tamanho uniforme [20,1000] bytes - substituido pelo metodo congruente   
+        y = lcm.uniform()
+        pkt_a = 20 + int(y * 981)
         self.schedule(ArrivalEvent(first_a, 'A', pkt_a))
 
         # Primeira chegada de B: periódica, começa em t=0
@@ -337,8 +367,12 @@ class CollisionSimulator(Simulator):
         Para B: tempo é fixo a cada 40ms (periódico)
         """
         if station_id == 'A':
-            inter_arrival = random.expovariate(self.lambda_a)
-            pkt_size      = random.randint(20, 1000)
+            # inter_arrival = random.expovariate(self.lambda_a) - substituido pelo metodo congruente
+            y = lcm.uniform()
+            inter_arrival = -math.log(y) / self.lambda_a
+            # pkt_size      = random.randint(20, 1000) - substituido pelo metodo congruente
+            y = lcm.uniform()
+            pkt_size = 20 + int(y * 981)   # 20 + [0..980] → [20, 1000]
             t_next        = current_time + inter_arrival
         else:  # B
             inter_arrival = 0.040    # 40 ms = 0.040 s
@@ -377,12 +411,12 @@ class CollisionSimulator(Simulator):
 
 
 # ─────────────────────────────────────────────────────────────
-# BLOCO 5: EXECUÇÃO
+# BLOCO 6: EXECUÇÃO
 # ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
 
-    random.seed(42)   # semente fixa para reprodutibilidade
+    lcm = LCM(seed=42)   # semente fixa para reprodutibilidade
 
     # Parâmetros da simulação
     SIMULATION_TIME = 10.0    # segundos de simulação
@@ -409,7 +443,8 @@ if __name__ == "__main__":
     print("  " + "-"*56)
 
     for lam in [10, 25, 50, 100, 200, 500]:
-        random.seed(42)
+        # random.seed(42)
+        lcm.z = 42
         s = CollisionSimulator(end_time=10.0, lambda_a=lam)
         s.setup()
         s.run()
