@@ -86,7 +86,7 @@ BANDWIDTH        = 10e6          # 10 Mbps em bits/segundo
 PROP_DELAY       = 3.33e-3       # 3.33 ms = tempo de propagação A→B (e B→A)
 MAX_QUEUE_BYTES  = 5000          # capacidade máxima da fila de cada estação
 BACKOFF_SLOTS    = 10            # número de slots de backoff possíveis
-SLOT_TIME        = 2 * PROP_DELAY  # slot = 2× propagação (padrão CSMA/CD)
+SLOT_TIME        = 2 * PROP_DELAY  # slot = 2× propagação 
 # SLOT_TIME = 6.66 ms — tempo mínimo para detectar qualquer colisão
 
 
@@ -417,3 +417,5 @@ if __name__ == "__main__":
         th_a = (s.stations['A']['bytes_sent'] * 8) / 10.0 / 1e6
         th_b = (s.stations['B']['bytes_sent'] * 8) / 10.0 / 1e6
         print(f"  {lam:<12} {th_a:<16.4f} {th_b:<16.4f} {s.total_collisions:<10}")
+    
+    print("\n")

@@ -83,3 +83,7 @@ Avaliar o desempenho de duas estações compartilhando um meio fı́sico com col
 • Total de colisões.
 
 • Número de backoffs por estação.
+
+# Adendo
+
+Alterar a forma de geração de números randômicos na Simulação, usando outro métodos como: congruente linear, etc.
