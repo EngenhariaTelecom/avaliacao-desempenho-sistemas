@@ -86,4 +86,4 @@ Avaliar o desempenho de duas estações compartilhando um meio fı́sico com col
 
 # Adendo
 
-Alterar a forma de geração de números randômicos na Simulação, usando outro métodos como: congruente linear, etc.
+Alterar a forma de geração de números randômicos na Simulação, usando outros métodos como: Método Congruente Linear, etc.
