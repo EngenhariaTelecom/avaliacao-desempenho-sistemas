@@ -87,3 +87,11 @@ Avaliar o desempenho de duas estações compartilhando um meio fı́sico com col
 # Adendo
 
 Alterar a forma de geração de números randômicos na Simulação, usando outros métodos como: Método Congruente Linear, etc.
+
+# Resultado
+
+Após executar o código simulador_v2.py, tem-se o seguinte resultado:
+
+![resultado](image.png)
+
+Deixamos uma semente fixa para garantir a mesma reprodutibilidade.
